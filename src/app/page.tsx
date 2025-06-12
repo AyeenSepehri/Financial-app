@@ -1,20 +1,26 @@
 'use client';
-import { useQuery } from "@tanstack/react-query";
+import { useEffect } from "react";
+import { useAppDispatch } from "@/hooks/reduxHooks/useAppDispatch";
+import {useAppSelector} from "@/hooks/reduxHooks/useAppSelector";
+import { fetchTransactions } from "@/features/transactions/transactionThunks";
 
 export default function HomePage() {
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: () =>
-        fetch("http://localhost:4000/transactions").then((res) => res.json()),
-  });
+    const dispatch = useAppDispatch();
+    const { items, loading, error } = useAppSelector((state) => state.transactions);
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading transactions</div>;
+    useEffect(() => {
+        dispatch(fetchTransactions());
+    }, [dispatch]);
 
-  return (
-      <div className="p-4">
-        <h1 className="text-lg font-bold">Transactions (test)</h1>
-        <pre className="bg-gray-100 p-4 rounded mt-4">{JSON.stringify(data, null, 2)}</pre>
-      </div>
-  );
+    if (loading) return <div>Loading...</div>;
+    if (error) return <div>Error: {error}</div>;
+
+    return (
+        <div className="p-4">
+            <h1 className="text-lg font-bold mb-4">Transactions</h1>
+            <pre className="bg-gray-100 p-4 rounded">
+        {JSON.stringify(items, null, 2)}
+      </pre>
+        </div>
+    );
 }
