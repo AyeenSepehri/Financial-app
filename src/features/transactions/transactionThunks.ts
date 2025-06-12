@@ -12,7 +12,7 @@ export const fetchTransactions = createAsyncThunk<
         return response.data;
     } catch (err) {
         console.error(err);
-        return thunkAPI.rejectWithValue("خطا در گرفتن اطلاعات");
+        return thunkAPI.rejectWithValue("Error when fetching data");
     }
 });
 
