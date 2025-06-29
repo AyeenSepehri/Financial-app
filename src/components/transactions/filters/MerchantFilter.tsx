@@ -12,7 +12,7 @@ type Props = {
 export default function MerchantFilter({merchantId, options, onChange}: Props) {
     return (
         <div className="w-full">
-            <label className="block text-sm font-medium mb-1 text-gray-700">Status</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700">Merchant</label>
             <Select
                 showSearch
                 allowClear

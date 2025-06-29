@@ -9,15 +9,17 @@ import AmountRangeFilter from "./filters/AmountRangeFilter";
 import DateRangeFilter from "./filters/DateRangeFilter";
 import MerchantFilter from "./filters/MerchantFilter";
 import { TransactionFilterValues } from "./filters/types";
+import PaymentMethodFilter from "@/components/transactions/filters/PaymentMethodFilter";
 
 type Props = {
     filters: TransactionFilterValues;
     merchantOptions: { label: string; value: string }[];
+    paymentMethodOptions: { label: string; options: { label: string; value: string }[] }[];
     onChange: (values: TransactionFilterValues) => void;
     onApply: () => void;
 };
 
-export default function TransactionsFilter({ filters, merchantOptions, onChange, onApply }: Props) {
+export default function TransactionsFilter({ filters, merchantOptions, paymentMethodOptions, onChange, onApply }: Props) {
     const [open, setOpen] = useState(false);
     const toggleCollapse = () => setOpen((prev) => !prev);
 
@@ -37,21 +39,21 @@ export default function TransactionsFilter({ filters, merchantOptions, onChange,
                     <div className="w-full md:w-1/4">
                         <StatusFilter
                             value={filters.status}
-                            onChange={(val) => onChange({ ...filters, status: val })}
+                            onChange={(val) => onChange({...filters, status: val})}
                         />
                     </div>
 
                     <div className="w-full md:w-1/4">
                         <AmountRangeFilter
                             value={filters.amountRange}
-                            onChange={(val) => onChange({ ...filters, amountRange: val })}
+                            onChange={(val) => onChange({...filters, amountRange: val})}
                         />
                     </div>
 
                     <div className="w-full md:w-1/4">
                         <DateRangeFilter
                             value={filters.dateRange}
-                            onChange={(val) => onChange({ ...filters, dateRange: val })}
+                            onChange={(val) => onChange({...filters, dateRange: val})}
                         />
                     </div>
 
@@ -59,9 +61,19 @@ export default function TransactionsFilter({ filters, merchantOptions, onChange,
                         <MerchantFilter
                             merchantId={filters.merchant}
                             options={merchantOptions}
-                            onChange={(id) => onChange({ ...filters, merchant: id })}
+                            onChange={(id) => onChange({...filters, merchant: id})}
                         />
                     </div>
+
+                    <div className="w-full md:w-1/4">
+                        <PaymentMethodFilter
+                            value={filters.paymentMethod}
+                            options={paymentMethodOptions}
+                            onChange={(val) => onChange({...filters, paymentMethod: val})}
+                        />
+                    </div>
+
+
                 </div>
             )}
 

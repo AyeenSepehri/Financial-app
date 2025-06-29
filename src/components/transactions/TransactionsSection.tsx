@@ -60,6 +60,26 @@ export default function TransactionsSection() {
         setFilters(updatedFilters);
         setPage(1);
     };
+
+    const paymentMethodOptions = useMemo(() => {
+        const map = new Map<string, Set<string>>();
+        allTransactions.forEach(({ payment_method }) => {
+            const { type, brand } = payment_method;
+            const set = map.get(type) ?? new Set<string>();
+            set.add(brand);
+            map.set(type, set);
+        });
+        return Array.from(map.entries()).map(([type, brands]) => ({
+            label: type.replace("_", " ").toUpperCase(),
+            options: Array.from(brands).map((brand) => ({
+                value: `${type}-${brand}`,
+                label: `${type.replace("_", " ").toUpperCase()} (${brand.toUpperCase()})`
+            }))
+        }));
+    }, [allTransactions]);
+
+
+
     const merchantOptions = useMemo(() => {
         const map = new Map<string, string>();
         allTransactions.forEach((txn) => map.set(txn.merchant.id, txn.merchant.name));
@@ -77,6 +97,7 @@ export default function TransactionsSection() {
             <TransactionsFilter
                 filters={filters}
                 merchantOptions={merchantOptions}
+                paymentMethodOptions={paymentMethodOptions}
                 onChange={handleFilterChange}
                 onApply={fetchAndFilterTransactions}
             />

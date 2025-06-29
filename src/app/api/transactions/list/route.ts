@@ -50,6 +50,7 @@ export async function GET(req: NextRequest) {
             filtered = filtered.filter((txn) => txn.merchant.id === merchant);
         }
 
+        // ======= bypass pagination =======
         const fetchAll = sp.get("_all");
         if (fetchAll === "true") {
             return NextResponse.json({
@@ -57,6 +58,16 @@ export async function GET(req: NextRequest) {
                 total: filtered.length,
             });
         }
+        const paymentMethod = sp.get("paymentMethod");
+        if (paymentMethod && paymentMethod !== "all") {
+            const [type, brand] = paymentMethod.split("-");
+            filtered = filtered.filter(
+                (txn) =>
+                    txn.payment_method.type === type &&
+                    txn.payment_method.brand === brand
+            );
+        }
+
 
         // ======= pagination =======
         const startIdx = (page - 1) * limit;

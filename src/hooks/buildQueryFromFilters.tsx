@@ -33,5 +33,9 @@ export const buildQueryFromFilters = (
         query.merchant = filters.merchant; // id
     }
 
+    if (filters.paymentMethod && filters.paymentMethod !== "all") {
+        query.paymentMethod = filters.paymentMethod;
+    }
+
     return query;
 };
