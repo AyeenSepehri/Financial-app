@@ -29,5 +29,9 @@ export const buildQueryFromFilters = (
         query.end = end.toISOString();
     }
 
+    if (filters.merchant && filters.merchant !== "all") {
+        query.merchant = filters.merchant; // id
+    }
+
     return query;
 };

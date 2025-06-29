@@ -44,6 +44,20 @@ export async function GET(req: NextRequest) {
             });
         }
 
+        // ======= merchant =======
+        const merchant = sp.get("merchant");
+        if (merchant && merchant !== "all") {
+            filtered = filtered.filter((txn) => txn.merchant.id === merchant);
+        }
+
+        const fetchAll = sp.get("_all");
+        if (fetchAll === "true") {
+            return NextResponse.json({
+                data: filtered,
+                total: filtered.length,
+            });
+        }
+
         // ======= pagination =======
         const startIdx = (page - 1) * limit;
         const endIdx = startIdx + limit;

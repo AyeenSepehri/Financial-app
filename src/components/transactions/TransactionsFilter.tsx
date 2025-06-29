@@ -7,15 +7,17 @@ import { DownOutlined, UpOutlined } from "@ant-design/icons";
 import StatusFilter from "./filters/StatusFilter";
 import AmountRangeFilter from "./filters/AmountRangeFilter";
 import DateRangeFilter from "./filters/DateRangeFilter";
+import MerchantFilter from "./filters/MerchantFilter";
 import { TransactionFilterValues } from "./filters/types";
 
 type Props = {
     filters: TransactionFilterValues;
+    merchantOptions: { label: string; value: string }[];
     onChange: (values: TransactionFilterValues) => void;
     onApply: () => void;
 };
 
-export default function TransactionsFilter({ filters, onChange, onApply }: Props) {
+export default function TransactionsFilter({ filters, merchantOptions, onChange, onApply }: Props) {
     const [open, setOpen] = useState(false);
     const toggleCollapse = () => setOpen((prev) => !prev);
 
@@ -32,24 +34,32 @@ export default function TransactionsFilter({ filters, onChange, onApply }: Props
 
             {open && (
                 <div className="flex flex-col md:flex-row gap-4 bg-white p-4 rounded border shadow-sm">
-                    <div className="w-full md:w-1/3">
+                    <div className="w-full md:w-1/4">
                         <StatusFilter
                             value={filters.status}
                             onChange={(val) => onChange({ ...filters, status: val })}
                         />
                     </div>
 
-                    <div className="w-full md:w-1/3">
+                    <div className="w-full md:w-1/4">
                         <AmountRangeFilter
                             value={filters.amountRange}
                             onChange={(val) => onChange({ ...filters, amountRange: val })}
                         />
                     </div>
 
-                    <div className="w-full md:w-1/3">
+                    <div className="w-full md:w-1/4">
                         <DateRangeFilter
                             value={filters.dateRange}
                             onChange={(val) => onChange({ ...filters, dateRange: val })}
+                        />
+                    </div>
+
+                    <div className="w-full md:w-1/4">
+                        <MerchantFilter
+                            merchantId={filters.merchant}
+                            options={merchantOptions}
+                            onChange={(id) => onChange({ ...filters, merchant: id })}
                         />
                     </div>
                 </div>

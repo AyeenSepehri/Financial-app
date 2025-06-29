@@ -13,7 +13,7 @@ type Props = {
 export default function DateRangeFilter({ value, onChange }: Props) {
     return (
         <div>
-            <label className="block mb-1 font-medium">Date Range</label>
+            <label className="block text-sm font-medium mb-1 text-gray-700">Date Range</label>
             <RangePicker
                 value={value}
                 onChange={(dates) => onChange(dates as [Dayjs | null, Dayjs | null])}
