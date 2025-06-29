@@ -1,6 +1,6 @@
 'use client';
 
-import {useState, useCallback, useEffect, useMemo} from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAppDispatch } from "@/hooks/reduxHooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/reduxHooks/useAppSelector";
 import { fetchTransactions } from "@/features/transactions/transactionThunks";
@@ -8,8 +8,7 @@ import TransactionsFilter from "./TransactionsFilter";
 import TransactionsTable from "./TransactionsTable";
 import { TransactionFilterValues } from "./filters/types";
 import { buildQueryFromFilters } from "@/hooks/buildQueryFromFilters";
-import {Transaction} from "@/features/transactions/types";
-import axios from "axios";
+import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
 
 export default function TransactionsSection() {
     const dispatch = useAppDispatch();
@@ -27,23 +26,9 @@ export default function TransactionsSection() {
     const [pageSize, setPageSize] = useState(5);
     const [filteredItems, setFilteredItems] = useState(items);
     const [filteredTotal, setFilteredTotal] = useState(0);
-    const [allTransactions, setAllTransactions] = useState<Transaction[]>([]);
+    const [appliedFilters, setAppliedFilters] = useState(filters);
 
-    useEffect(() => {
-        axios
-            .get("/api/transactions/list", {
-                params: { _all: true },
-            })
-            .then((res) => {
-                setAllTransactions(res.data.data);
-            })
-            .catch((err) => console.error("Error loading all transactions", err));
-    }, []);
-
-
-    useEffect(() => {
-        fetchAndFilterTransactions();
-    }, [page, pageSize]);
+    const { data: allTransactions = [], isLoading: allLoading } = useAllTransactions();
 
     const fetchAndFilterTransactions = useCallback(() => {
         const query = buildQueryFromFilters(filters, page, pageSize);
@@ -54,12 +39,32 @@ export default function TransactionsSection() {
                 setFilteredTotal(action.payload.total);
             }
         });
-    }, [dispatch, filters, page, pageSize]);
+    }, [dispatch, appliedFilters, page, pageSize]);
+
+    useEffect(() => {
+        fetchAndFilterTransactions();
+    }, [fetchAndFilterTransactions]);
 
     const handleFilterChange = (updatedFilters: TransactionFilterValues) => {
         setFilters(updatedFilters);
         setPage(1);
     };
+
+    const handlePageChange = (newPage: number, newPageSize: number) => {
+        setPage(newPage);
+        setPageSize(newPageSize);
+    };
+
+    const handleApplyFilters = () => {
+        setAppliedFilters(filters);
+        setPage(1);
+    };
+
+    const merchantOptions = useMemo(() => {
+        const map = new Map<string, string>();
+        allTransactions.forEach((txn) => map.set(txn.merchant.id, txn.merchant.name));
+        return Array.from(map.entries()).map(([id, name]) => ({ value: id, label: name }));
+    }, [allTransactions]);
 
     const paymentMethodOptions = useMemo(() => {
         const map = new Map<string, Set<string>>();
@@ -73,24 +78,10 @@ export default function TransactionsSection() {
             label: type.replace("_", " ").toUpperCase(),
             options: Array.from(brands).map((brand) => ({
                 value: `${type}-${brand}`,
-                label: `${type.replace("_", " ").toUpperCase()} (${brand.toUpperCase()})`
-            }))
+                label: `${type.replace("_", " ").toUpperCase()} (${brand.toUpperCase()})`,
+            })),
         }));
     }, [allTransactions]);
-
-
-
-    const merchantOptions = useMemo(() => {
-        const map = new Map<string, string>();
-        allTransactions.forEach((txn) => map.set(txn.merchant.id, txn.merchant.name));
-        return Array.from(map.entries()).map(([id, name]) => ({ value: id, label: name }));
-    }, [allTransactions]);
-
-
-    const handlePageChange = (newPage: number, newPageSize: number) => {
-        setPage(newPage);
-        setPageSize(newPageSize);
-    };
 
     return (
         <div>
@@ -99,11 +90,11 @@ export default function TransactionsSection() {
                 merchantOptions={merchantOptions}
                 paymentMethodOptions={paymentMethodOptions}
                 onChange={handleFilterChange}
-                onApply={fetchAndFilterTransactions}
+                onApply={handleApplyFilters}
             />
             <TransactionsTable
                 data={filteredItems}
-                loading={loading}
+                loading={loading || allLoading}
                 error={error}
                 pagination={{
                     current: page,

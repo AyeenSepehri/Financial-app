@@ -50,14 +50,7 @@ export async function GET(req: NextRequest) {
             filtered = filtered.filter((txn) => txn.merchant.id === merchant);
         }
 
-        // ======= bypass pagination =======
-        const fetchAll = sp.get("_all");
-        if (fetchAll === "true") {
-            return NextResponse.json({
-                data: filtered,
-                total: filtered.length,
-            });
-        }
+        // ======= payment method =======
         const paymentMethod = sp.get("paymentMethod");
         if (paymentMethod && paymentMethod !== "all") {
             const [type, brand] = paymentMethod.split("-");
@@ -68,6 +61,14 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        // ======= bypass pagination =======
+        const fetchAll = sp.get("_all");
+        if (fetchAll === "true") {
+            return NextResponse.json({
+                data: filtered,
+                total: filtered.length,
+            });
+        }
 
         // ======= pagination =======
         const startIdx = (page - 1) * limit;
