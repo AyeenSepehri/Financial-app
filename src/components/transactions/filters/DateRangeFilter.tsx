@@ -1,40 +1,25 @@
 'use client';
 
 import { DatePicker } from "antd";
-import type { RangePickerProps } from "antd/es/date-picker";
-import dayjs from "dayjs";
+import { Dayjs } from "dayjs";
 
 const { RangePicker } = DatePicker;
 
 type Props = {
-    value: [string, string] | null;
-    onChange: (value: [string, string] | null) => void;
+    value: [Dayjs | null, Dayjs | null];
+    onChange: (range: [Dayjs | null, Dayjs | null]) => void;
 };
 
 export default function DateRangeFilter({ value, onChange }: Props) {
-    const handleChange: RangePickerProps["onChange"] = (dates) => {
-        if (!dates || !dates[0] || !dates[1]) {
-            onChange(null);
-        } else {
-            onChange([
-                dayjs(dates[0]).format("YYYY-MM-DD"),
-                dayjs(dates[1]).format("YYYY-MM-DD"),
-            ]);
-        }
-    };
-
     return (
-        <div className="w-full">
-            <label className="block text-sm font-medium mb-1 text-gray-700">Date Range</label>
+        <div>
+            <label className="block mb-1 font-medium">Date Range</label>
             <RangePicker
-                onChange={handleChange}
-                style={{ width: "100%" }}
-                value={
-                    value
-                        ? [dayjs(value[0], "YYYY-MM-DD"), dayjs(value[1], "YYYY-MM-DD")]
-                        : null
-                }
+                value={value}
+                onChange={(dates) => onChange(dates as [Dayjs | null, Dayjs | null])}
                 format="YYYY-MM-DD"
+                allowClear
+                style={{ width: "100%" }}
             />
         </div>
     );

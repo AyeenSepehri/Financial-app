@@ -1,55 +1,74 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useState, useCallback , useEffect } from "react";
 import { useAppDispatch } from "@/hooks/reduxHooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/reduxHooks/useAppSelector";
 import { fetchTransactions } from "@/features/transactions/transactionThunks";
 import TransactionsFilter from "./TransactionsFilter";
 import TransactionsTable from "./TransactionsTable";
-import { Transaction } from "@/features/transactions/types";
 import { TransactionFilterValues } from "./filters/types";
+import { buildQueryFromFilters } from "@/hooks/buildQueryFromFilters";
 
 export default function TransactionsSection() {
     const dispatch = useAppDispatch();
     const { items, loading, error } = useAppSelector((state) => state.transactions);
-    const [filteredItems, setFilteredItems] = useState<Transaction[]>([]);
+
+    const [filters, setFilters] = useState<TransactionFilterValues>({
+        status: "all",
+        amountRange: [null, null],
+        merchant: "all",
+        paymentMethod: "all",
+        dateRange: [null, null],
+    });
+
+    const [page, setPage] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [filteredItems, setFilteredItems] = useState(items);
+    const [filteredTotal, setFilteredTotal] = useState(0);
 
     useEffect(() => {
-        dispatch(fetchTransactions());
-    }, [dispatch]);
+        fetchAndFilterTransactions();
+    }, [page, pageSize]);
 
-    const applyFilters = (filters: TransactionFilterValues, data: Transaction[]) => {
-        return data.filter((item) => {
-            const matchesStatus =
-                filters.status === "all" || item.status === filters.status;
+    const fetchAndFilterTransactions = useCallback(() => {
+        const query = buildQueryFromFilters(filters, page, pageSize);
 
-            const matchesDateRange =
-                !filters.dateRange ||
-                (item.timestamp >= filters.dateRange[0] &&
-                    item.timestamp <= filters.dateRange[1]);
-
-            const [min, max] = filters.amountRange;
-            const matchesAmount =
-                (min === null || item.amount >= min) &&
-                (max === null || item.amount <= max);
-
-            return matchesStatus && matchesDateRange && matchesAmount;
+        dispatch(fetchTransactions(query)).then((action) => {
+            if (fetchTransactions.fulfilled.match(action)) {
+                setFilteredItems(action.payload.data);
+                setFilteredTotal(action.payload.total);
+            }
         });
+    }, [dispatch, filters, page, pageSize]);
+
+    const handleFilterChange = (updatedFilters: TransactionFilterValues) => {
+        setFilters(updatedFilters);
+        setPage(1);
     };
 
-    const handleFilterChange = (filters: TransactionFilterValues) => {
-        const filtered = applyFilters(filters, items);
-        setFilteredItems(filtered);
+    const handlePageChange = (newPage: number, newPageSize: number) => {
+        setPage(newPage);
+        setPageSize(newPageSize);
     };
-
-    useEffect(() => {
-        setFilteredItems(items);
-    }, [items]);
 
     return (
         <div>
-            <TransactionsFilter onChange={handleFilterChange} />
-            <TransactionsTable data={filteredItems} loading={loading} error={error} />
+            <TransactionsFilter
+                filters={filters}
+                onChange={handleFilterChange}
+                onApply={fetchAndFilterTransactions}
+            />
+            <TransactionsTable
+                data={filteredItems}
+                loading={loading}
+                error={error}
+                pagination={{
+                    current: page,
+                    pageSize,
+                    total: filteredTotal,
+                    onChange: handlePageChange,
+                }}
+            />
         </div>
     );
 }

@@ -4,12 +4,14 @@ import { fetchTransactions } from "./transactionThunks";
 
 interface TransactionState {
     items: Transaction[];
+    total: number;
     loading: boolean;
     error: string | null;
 }
 
 const initialState: TransactionState = {
     items: [],
+    total: 0,
     loading: false,
     error: null,
 };
@@ -17,9 +19,7 @@ const initialState: TransactionState = {
 const transactionSlice = createSlice({
     name: "transactions",
     initialState,
-    reducers: {
-        // در صورت نیاز، reducerهای sync رو اینجا می‌ذاریم (مثلاً فیلترها)
-    },
+    reducers: {},
     extraReducers: (builder) => {
         builder
             .addCase(fetchTransactions.pending, (state) => {
@@ -28,8 +28,10 @@ const transactionSlice = createSlice({
             })
             .addCase(fetchTransactions.fulfilled, (state, action) => {
                 state.loading = false;
-                state.items = action.payload;
+                state.items = action.payload.data;
+                state.total = action.payload.total;
             })
+
             .addCase(fetchTransactions.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload ?? "Unknown error";

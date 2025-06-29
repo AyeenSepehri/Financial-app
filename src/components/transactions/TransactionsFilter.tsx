@@ -5,27 +5,18 @@ import { Button } from "antd";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 
 import StatusFilter from "./filters/StatusFilter";
-import DateRangeFilter from "./filters/DateRangeFilter";
 import AmountRangeFilter from "./filters/AmountRangeFilter";
-
+import DateRangeFilter from "./filters/DateRangeFilter";
 import { TransactionFilterValues } from "./filters/types";
 
 type Props = {
+    filters: TransactionFilterValues;
     onChange: (values: TransactionFilterValues) => void;
+    onApply: () => void;
 };
 
-const defaultFilters: TransactionFilterValues = {
-    status: "all",
-    dateRange: null,
-    amountRange: [null, null],
-    merchant: "all",
-    paymentMethod: "all",
-};
-
-export default function TransactionsFilter({ onChange }: Props) {
-    const [filters, setFilters] = useState<TransactionFilterValues>(defaultFilters);
+export default function TransactionsFilter({ filters, onChange, onApply }: Props) {
     const [open, setOpen] = useState(false);
-
     const toggleCollapse = () => setOpen((prev) => !prev);
 
     return (
@@ -44,37 +35,30 @@ export default function TransactionsFilter({ onChange }: Props) {
                     <div className="w-full md:w-1/3">
                         <StatusFilter
                             value={filters.status}
-                            onChange={(val) => {
-                                const next = {...filters, status: val};
-                                setFilters(next);
-                                onChange(next); // 🔁 انتقال مستقیم و ایمن
-                            }}
+                            onChange={(val) => onChange({ ...filters, status: val })}
                         />
+                    </div>
 
-                    </div>
-                    <div className="w-full md:w-1/3">
-                        <DateRangeFilter
-                            value={filters.dateRange}
-                            onChange={(val) => {
-                                const next = {...filters, dateRange: val};
-                                setFilters(next);
-                                onChange(next);
-                            }}
-                        />
-                    </div>
                     <div className="w-full md:w-1/3">
                         <AmountRangeFilter
                             value={filters.amountRange}
-                            onChange={(val) => {
-                                const next = {...filters, amountRange: val};
-                                setFilters(next);
-                                onChange(next);
-                            }}
+                            onChange={(val) => onChange({ ...filters, amountRange: val })}
                         />
                     </div>
 
-
+                    <div className="w-full md:w-1/3">
+                        <DateRangeFilter
+                            value={filters.dateRange}
+                            onChange={(val) => onChange({ ...filters, dateRange: val })}
+                        />
+                    </div>
                 </div>
+            )}
+
+            {open && (
+                <Button type="primary" onClick={onApply} className="mt-3">
+                    Apply Filters
+                </Button>
             )}
         </div>
     );
