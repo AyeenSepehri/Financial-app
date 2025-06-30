@@ -1,6 +1,11 @@
+"use client"
 import {Tag} from "antd";
 import type {ColumnsType} from "antd/es/table";
 import {Transaction} from "@/features/transactions/types";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export const transactionColumns: ColumnsType<Transaction> = [
     {
@@ -46,6 +51,10 @@ export const transactionColumns: ColumnsType<Transaction> = [
         dataIndex: "timestamp",
         key: "timestamp",
         sorter: (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+        render: (timestamp: string) => {
+            const formatted = dayjs.utc(timestamp).format("DD MMM YYYY (HH:mm)");
+            return <span>{formatted}</span>;
+        },
     },
     {
         title: "Description",
