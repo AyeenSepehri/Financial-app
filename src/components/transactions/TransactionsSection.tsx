@@ -12,10 +12,18 @@ import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
 import AddTransactionModal from "./AddTransactionModal";
 import { Button } from "antd";
 import {Transaction} from "@/features/transactions/types";
+import { useAddTransaction } from "@/hooks/queries/useAddTransaction";
+import { toast } from "react-toastify";
+
+
 
 export default function TransactionsSection() {
     const dispatch = useAppDispatch();
     const { items, loading, error } = useAppSelector((state) => state.transactions);
+    const {
+        mutate: addTransaction,
+        // isLoading: isAdding,
+    } = useAddTransaction();
 
     const [filters, setFilters] = useState<TransactionFilterValues>({
         status: "all",
@@ -66,17 +74,24 @@ export default function TransactionsSection() {
 
     const merchantOptions = useMemo(() => {
         const map = new Map<string, string>();
-        allTransactions.forEach((txn) => map.set(txn.merchant.id, txn.merchant.name));
+        allTransactions.forEach((txn) => {
+            if (txn.merchant && txn.merchant.id && txn.merchant.name) {
+                map.set(txn.merchant.id, txn.merchant.name);
+            }
+        });
         return Array.from(map.entries()).map(([id, name]) => ({ value: id, label: name }));
     }, [allTransactions]);
+
 
     const paymentMethodOptions = useMemo(() => {
         const map = new Map<string, Set<string>>();
         allTransactions.forEach(({ payment_method }) => {
-            const { type, brand } = payment_method;
-            const set = map.get(type) ?? new Set<string>();
-            set.add(brand);
-            map.set(type, set);
+            if (payment_method && payment_method.type && payment_method.brand) {
+                const { type, brand } = payment_method;
+                const set = map.get(type) ?? new Set<string>();
+                set.add(brand);
+                map.set(type, set);
+            }
         });
         return Array.from(map.entries()).map(([type, brands]) => ({
             label: type.replace("_", " ").toUpperCase(),
@@ -87,11 +102,28 @@ export default function TransactionsSection() {
         }));
     }, [allTransactions]);
 
-    const handleAddTransaction = (newTxn: Omit<Transaction, 'id'>) => {
-        // این تابع بعداً با POST به سرور کامل میشه
-        console.log("New Transaction:", newTxn);
-        setIsModalVisible(false);
+
+    const handleAddTransaction = (newTxn: Omit<Transaction, "id">) => {
+        const lastTxn = allTransactions[allTransactions.length - 1];
+        const lastId = parseInt(lastTxn?.id.split("_")[1] || "0", 10);
+        const newId = `txn_${String(lastId + 1).padStart(3, "0")}`;
+
+        addTransaction({ id: newId, ...newTxn }, {
+            onSuccess: () => {
+                setIsModalVisible(false);
+                toast.success("Transaction successfully saved.");
+                fetchAndFilterTransactions();
+            },
+
+            onError: () => {
+                setIsModalVisible(false);
+                toast.error("Adding transaction encountered an error.");
+            },
+
+        });
+
     };
+
 
     return (
         <div>

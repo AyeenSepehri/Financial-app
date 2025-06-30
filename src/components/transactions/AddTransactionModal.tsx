@@ -1,9 +1,9 @@
 'use client';
 
-import { Modal, Form} from 'antd';
+import { Modal, Form } from 'antd';
 import { Transaction } from '@/features/transactions/types';
-import AddForm from "@/components/transactions/form/AddForm";
-
+import AddForm from '@/components/transactions/form/AddForm';
+import { toast } from "react-toastify";
 
 type Props = {
     visible: boolean;
@@ -17,15 +17,58 @@ export default function AddTransactionModal({ visible, onClose, onAdd }: Props) 
     const handleSubmit = async () => {
         try {
             const values = await form.validateFields();
-            const newTxn = {
-                ...values,
-                timestamp: values.timestamp.toISOString(),
+
+            const newTransaction: Omit<Transaction, 'id'> = {
+                amount: values.amount,
+                currency: values.currency,
+                status: values.status,
+                timestamp: values.timestamp,
+                description: values.description || "",
+
+                merchant: {
+                    name: values.merchant,
+                    id: values.merchant_id,
+                },
+
+                payment_method: {
+                    type: values.payment_type,
+                    brand: values.payment_brand,
+                    last4: values.payment_last4 || "",
+                },
+
+                sender: {
+                    name: values.sender_name,
+                    account_id: values.sender_account,
+                },
+
+                receiver: {
+                    name: values.receiver_name,
+                    account_id: values.receiver_account,
+                },
+
+                fees: {
+                    processing_fee: values.fee,
+                    currency: values.fee_currency,
+                },
+
+                metadata: {
+                    order_id: values.order_id,
+                    customer_id: values.customer_id,
+                },
             };
-            onAdd(newTxn);
+
+            console.log(newTransaction);
+            onAdd(newTransaction);
             form.resetFields();
-        } catch (error) {
-            console.log("Validation failed:", error);
+        } catch (err) {
+            const error = err as { errorFields: Array<{ name: string[] }> };
+
+            if (error?.errorFields?.[0]?.name) {
+                form.scrollToField(error.errorFields[0].name);
+            }
+            toast.error("لطفاً تمام فیلدهای الزامی را پر کنید.");
         }
+
     };
 
     return (
@@ -44,9 +87,7 @@ export default function AddTransactionModal({ visible, onClose, onAdd }: Props) 
                 },
             }}
         >
-            <AddForm />
+            <AddForm form={form} />
         </Modal>
-
-
     );
 }

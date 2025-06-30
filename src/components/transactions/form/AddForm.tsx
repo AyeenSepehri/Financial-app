@@ -1,4 +1,4 @@
-import { Form } from "antd";
+import { Form, FormInstance } from "antd";
 import MerchantSection from "@/components/transactions/form/sections/MerchantSection";
 import TransactionSection from "@/components/transactions/form/sections/TransactionSection";
 import PaymentMethodSection from "@/components/transactions/form/sections/PaymentMethodSection";
@@ -7,25 +7,20 @@ import ReceiverSection from "@/components/transactions/form/sections/ReceiverSec
 import FeesSection from "@/components/transactions/form/sections/FeesSection";
 import MetadataSection from "@/components/transactions/form/sections/MetadataSection";
 
-export default function AddForm() {
-    const [form] = Form.useForm();
+type Props = {
+    form: FormInstance;
+};
 
+export default function AddForm({ form }: Props) {
     return (
         <Form layout="vertical" form={form}>
-
-            <TransactionSection/>
-
-            <MerchantSection/>
-
-            <PaymentMethodSection/>
-
-            <SenderSection/>
-
-            <ReceiverSection/>
-
-            <FeesSection/>
-
-            <MetadataSection/>
+            <TransactionSection />
+            <MerchantSection />
+            <PaymentMethodSection />
+            <SenderSection />
+            <ReceiverSection />
+            <FeesSection />
+            <MetadataSection />
         </Form>
     );
 }

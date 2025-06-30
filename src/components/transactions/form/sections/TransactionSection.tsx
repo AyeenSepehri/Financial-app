@@ -48,9 +48,9 @@ export default function TransactionSection() {
                         <Form.Item
                             name="timestamp"
                             label="Timestamp"
-                            rules={[{ required: true, message: "Timestamp is required" }]}
+                            rules={[{ required: true }]}
                         >
-                            <DatePicker showTime style={{width: '100%'}}/>
+                            <DatePicker showTime style={{ width: "100%" }} />
                         </Form.Item>
                     </div>
                 </div>
