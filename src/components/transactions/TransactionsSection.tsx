@@ -9,6 +9,9 @@ import TransactionsTable from "./TransactionsTable";
 import { TransactionFilterValues } from "./filters/types";
 import { buildQueryFromFilters } from "@/hooks/buildQueryFromFilters";
 import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
+import AddTransactionModal from "./AddTransactionModal";
+import { Button } from "antd";
+import {Transaction} from "@/features/transactions/types";
 
 export default function TransactionsSection() {
     const dispatch = useAppDispatch();
@@ -27,6 +30,7 @@ export default function TransactionsSection() {
     const [filteredItems, setFilteredItems] = useState(items);
     const [filteredTotal, setFilteredTotal] = useState(0);
     const [appliedFilters, setAppliedFilters] = useState(filters);
+    const [isModalVisible, setIsModalVisible] = useState(false);
 
     const { data: allTransactions = [], isLoading: allLoading } = useAllTransactions();
 
@@ -83,6 +87,12 @@ export default function TransactionsSection() {
         }));
     }, [allTransactions]);
 
+    const handleAddTransaction = (newTxn: Omit<Transaction, 'id'>) => {
+        // این تابع بعداً با POST به سرور کامل میشه
+        console.log("New Transaction:", newTxn);
+        setIsModalVisible(false);
+    };
+
     return (
         <div>
             <TransactionsFilter
@@ -92,6 +102,9 @@ export default function TransactionsSection() {
                 onChange={handleFilterChange}
                 onApply={handleApplyFilters}
             />
+            <Button type="primary" onClick={() => setIsModalVisible(true)} className="mb-4">
+                Add Transaction
+            </Button>
             <TransactionsTable
                 data={filteredItems}
                 loading={loading || allLoading}
@@ -102,6 +115,11 @@ export default function TransactionsSection() {
                     total: filteredTotal,
                     onChange: handlePageChange,
                 }}
+            />
+            <AddTransactionModal
+                visible={isModalVisible}
+                onClose={() => setIsModalVisible(false)}
+                onAdd={handleAddTransaction}
             />
         </div>
     );
