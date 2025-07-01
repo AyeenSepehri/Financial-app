@@ -1,42 +1,29 @@
-"use client"
-import {Tag} from "antd";
-import type {ColumnsType} from "antd/es/table";
-import {Transaction} from "@/features/transactions/types";
+"use client";
+
+import { ColumnDef } from "@tanstack/react-table";
+import { Transaction } from "@/features/transactions/types";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { Tag } from "antd";
 
 dayjs.extend(utc);
 
-export const transactionColumns: ColumnsType<Transaction> = [
+export const transactionColumns: ColumnDef<Transaction>[] = [
     {
-        title: "ID",
-        dataIndex: "id",
-        key: "id",
-        width: 100,
-        ellipsis: true,
-        sorter: (a, b) => a.id.localeCompare(b.id),
+        accessorKey: "amount",
+        header: "Amount",
+        cell: ({ row }) => {
+            const value = row.original.amount;
+            const currency = row.original.currency;
+            return <span className="font-semibold">{`${value} ${currency}`}</span>;
+        },
+        enableSorting: true,
     },
     {
-        title: "Amount",
-        dataIndex: "amount",
-        key: "amount",
-        align: "right",
-        sorter: (a, b) => a.amount - b.amount,
-        render: (value: number, record) => (
-            <span className="font-semibold">{`${value} ${record.currency}`}</span>
-        ),
-    },
-    {
-        title: "Status",
-        dataIndex: "status",
-        key: "status",
-        filters: [
-            {text: "Completed", value: "completed"},
-            {text: "Pending", value: "pending"},
-            {text: "Failed", value: "failed"},
-        ],
-        onFilter: (value, record) => record.status === value,
-        render: (status: string) => {
+        accessorKey: "status",
+        header: "Status",
+        cell: ({ getValue }) => {
+            const status = getValue<string>();
             const color =
                 status === "completed"
                     ? "green"
@@ -45,62 +32,70 @@ export const transactionColumns: ColumnsType<Transaction> = [
                         : "red";
             return <Tag color={color}>{status.toUpperCase()}</Tag>;
         },
+        enableColumnFilter: true,
+        meta: {
+            filterOptions: [
+                { text: "Completed", value: "completed" },
+                { text: "Pending", value: "pending" },
+                { text: "Failed", value: "failed" },
+            ],
+        },
+        enableSorting: true,
     },
     {
-        title: "Timestamp",
-        dataIndex: "timestamp",
-        key: "timestamp",
-        sorter: (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-        render: (timestamp: string) => {
+        accessorKey: "timestamp",
+        header: "Timestamp",
+        cell: ({ getValue }) => {
+            const timestamp = getValue<string>();
             const formatted = dayjs.utc(timestamp).format("DD MMM YYYY (HH:mm)");
             return <span>{formatted}</span>;
         },
+        enableSorting: true,
     },
     {
-        title: "Description",
-        dataIndex: "description",
-        key: "description",
-        ellipsis: true,
+        accessorKey: "description",
+        header: "Description",
     },
     {
-        title: "Merchant",
-        dataIndex: ["merchant", "name"],
-        key: "merchant",
-        sorter: (a, b) => a.merchant.name.localeCompare(b.merchant.name),
+        accessorFn: (row) => row.merchant?.name,
+        id: "merchant",
+        header: "Merchant",
+        enableSorting: true,
     },
     {
-        title: "Payment Method",
-        dataIndex: ["payment_method", "brand"],
-        key: "payment_method",
+        accessorFn: (row) => row.payment_method?.brand,
+        id: "payment_method",
+        header: "Payment Method",
     },
     {
-        title: "Sender",
-        dataIndex: ["sender", "name"],
-        key: "sender",
+        accessorFn: (row) => row.sender?.name,
+        id: "sender",
+        header: "Sender",
     },
     {
-        title: "Receiver",
-        dataIndex: ["receiver", "name"],
-        key: "receiver",
+        accessorFn: (row) => row.receiver?.name,
+        id: "receiver",
+        header: "Receiver",
     },
     {
-        title: "Processing Fee",
-        dataIndex: ["fees", "processing_fee"],
-        key: "fee",
-        align: "right",
-        render: (value: number, record) => `${value} ${record.fees.currency}`,
-        sorter: (a, b) => a.fees.processing_fee - b.fees.processing_fee,
+        accessorFn: (row) => row.fees.processing_fee,
+        id: "fee",
+        header: "Processing Fee",
+        cell: ({ row }) => {
+            const value = row.original.fees.processing_fee;
+            const currency = row.original.fees.currency;
+            return `${value} ${currency}`;
+        },
+        enableSorting: true,
     },
     {
-        title: "Order ID",
-        dataIndex: ["metadata", "order_id"],
-        key: "order_id",
-        width: 120,
+        accessorFn: (row) => row.metadata.order_id,
+        id: "order_id",
+        header: "Order ID",
     },
     {
-        title: "Customer ID",
-        dataIndex: ["metadata", "customer_id"],
-        key: "customer_id",
-        width: 120,
+        accessorFn: (row) => row.metadata.customer_id,
+        id: "customer_id",
+        header: "Customer ID",
     },
 ];

@@ -4,7 +4,9 @@ import { TransactionFilterValues } from "@/components/transactions/filters/types
 export const buildQueryFromFilters = (
     filters: TransactionFilterValues,
     page: number,
-    pageSize: number
+    pageSize: number,
+    sortBy?: string | null,
+    sortOrder?: "asc" | "desc" | null
 ): FetchParams => {
     const query: FetchParams = {
         _page: page,
@@ -40,6 +42,12 @@ export const buildQueryFromFilters = (
     // ======= payment method =======
     if (filters.paymentMethod && filters.paymentMethod !== "all") {
         query.paymentMethod = filters.paymentMethod;
+    }
+
+    // ======= sorting =======
+    if (sortBy && sortOrder) {
+        query.sortBy = sortBy;
+        query.sortOrder = sortOrder;
     }
 
     return query;

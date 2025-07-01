@@ -10,8 +10,10 @@ export type FetchParams = {
     paymentMethod?: string;
     amount_gte?: number;
     amount_lte?: number;
-    start?: string;  // 👈 اضافه شد
-    end?: string;    // 👈 اضافه شد
+    start?: string;
+    end?: string;
+    sortBy?: string | null,
+    sortOrder?: "asc" | "desc" | null
 };
 
 

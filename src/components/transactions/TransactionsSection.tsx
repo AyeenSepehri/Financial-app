@@ -39,11 +39,13 @@ export default function TransactionsSection() {
     const [filteredTotal, setFilteredTotal] = useState(0);
     const [appliedFilters, setAppliedFilters] = useState(filters);
     const [isModalVisible, setIsModalVisible] = useState(false);
+    const [sortBy, setSortBy] = useState<string | null>(null);
+    const [sortOrder, setSortOrder] = useState<"asc" | "desc" | null>(null);
 
     const { data: allTransactions = [], isLoading: allLoading } = useAllTransactions();
 
     const fetchAndFilterTransactions = useCallback(() => {
-        const query = buildQueryFromFilters(filters, page, pageSize);
+        const query = buildQueryFromFilters(filters, page, pageSize, sortBy, sortOrder);
 
         dispatch(fetchTransactions(query)).then((action) => {
             if (fetchTransactions.fulfilled.match(action)) {
@@ -51,7 +53,7 @@ export default function TransactionsSection() {
                 setFilteredTotal(action.payload.total);
             }
         });
-    }, [dispatch, appliedFilters, page, pageSize]);
+    }, [dispatch, appliedFilters, page, pageSize, sortBy, sortOrder]);
 
     useEffect(() => {
         fetchAndFilterTransactions();
@@ -147,7 +149,13 @@ export default function TransactionsSection() {
                     total: filteredTotal,
                     onChange: handlePageChange,
                 }}
+                onSortChange={(id, order) => {
+                    setSortBy(id);
+                    setSortOrder(order);
+                    setPage(1); // وقتی مرتب‌سازی تغییر کرد از صفحه ۱ شروع کنیم
+                }}
             />
+
             <AddTransactionModal
                 visible={isModalVisible}
                 onClose={() => setIsModalVisible(false)}

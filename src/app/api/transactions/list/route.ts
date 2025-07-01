@@ -61,6 +61,28 @@ export async function GET(req: NextRequest) {
             );
         }
 
+        // ======= sorting =======
+        const sortBy = sp.get("sortBy");
+        const sortOrder = sp.get("sortOrder");
+
+        if (sortBy && ["asc", "desc"].includes(sortOrder || "")) {
+            filtered.sort((a: any, b: any) => {
+                const aVal = a?.[sortBy];
+                const bVal = b?.[sortBy];
+
+                if (aVal === undefined || bVal === undefined) return 0;
+
+                if (typeof aVal === "number" && typeof bVal === "number") {
+                    return sortOrder === "asc" ? aVal - bVal : bVal - aVal;
+                }
+
+                return sortOrder === "asc"
+                    ? String(aVal).localeCompare(String(bVal))
+                    : String(bVal).localeCompare(String(aVal));
+            });
+        }
+
+
         // ======= bypass pagination =======
         const fetchAll = sp.get("_all");
         if (fetchAll === "true") {
