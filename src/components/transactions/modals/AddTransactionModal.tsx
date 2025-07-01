@@ -57,7 +57,6 @@ export default function AddTransactionModal({ visible, onClose, onAdd }: Props) 
                 },
             };
 
-            console.log(newTransaction);
             onAdd(newTransaction);
             form.resetFields();
         } catch (err) {
@@ -66,7 +65,7 @@ export default function AddTransactionModal({ visible, onClose, onAdd }: Props) 
             if (error?.errorFields?.[0]?.name) {
                 form.scrollToField(error.errorFields[0].name);
             }
-            toast.error("لطفاً تمام فیلدهای الزامی را پر کنید.");
+            toast.error("Please fill in all required fields.");
         }
 
     };
