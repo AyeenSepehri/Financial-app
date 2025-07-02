@@ -1,7 +1,6 @@
 'use client';
 
-import {Select} from "antd";
-import type {Transaction} from "@/features/transactions/types";
+import { Select } from "antd";
 
 type Props = {
     merchantId: string;
@@ -15,10 +14,10 @@ export default function MerchantFilter({merchantId, options, onChange}: Props) {
             <label className="block text-sm font-medium mb-1 text-gray-700">Merchant</label>
             <Select
                 showSearch
+                value={merchantId}
+                onChange={onChange}
+                placeholder="Select merchant"
                 allowClear
-                placeholder="All merchants"
-                value={merchantId !== "all" ? merchantId : undefined}
-                onChange={(id) => onChange(id ?? "all")}
                 options={[{label: "All merchants", value: "all"}, ...options]}
                 filterOption={(input, option) =>
                     (option?.label ?? "").toLowerCase().includes(input.toLowerCase())

@@ -66,9 +66,9 @@ export async function GET(req: NextRequest) {
         const sortOrder = sp.get("sortOrder");
 
         if (sortBy && ["asc", "desc"].includes(sortOrder || "")) {
-            filtered.sort((a: any, b: any) => {
-                const aVal = a?.[sortBy];
-                const bVal = b?.[sortBy];
+            filtered.sort((a: Transaction, b: Transaction) => {
+                const aVal = (a as unknown as Record<string, unknown>)?.[sortBy];
+                const bVal = (b as unknown as Record<string, unknown>)?.[sortBy];
 
                 if (aVal === undefined || bVal === undefined) return 0;
 

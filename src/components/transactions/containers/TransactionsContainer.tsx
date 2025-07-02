@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, Suspense, lazy } from "react";
+import { useMemo, Suspense, lazy, useEffect } from "react";
 import {useAppSelector} from "@/hooks/reduxHooks/useAppSelector";
 import { useAppDispatch} from "@/hooks/reduxHooks/useAppDispatch";
 import { useTransactionFilters } from "@/hooks/customHooks/useTransactionFilters";
@@ -11,10 +11,23 @@ import { useTransactionAdder } from "@/hooks/customHooks/useTransactionAdder";
 import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
 import { Button, Spin } from "antd";
 
-// Lazy load components for PRPL pattern
+// PRPL Pattern: Lazy load components with preloading
 const TransactionsFilter = lazy(() => import("../TransactionsFilter"));
 const TransactionsTable = lazy(() => import("../table/TransactionsTable"));
 const AddTransactionModal = lazy(() => import("../modals/AddTransactionModal"));
+
+// Preload critical components after initial render
+const preloadComponents = () => {
+  // Preload table component after filter is loaded
+  setTimeout(() => {
+    import("../table/TransactionsTable");
+  }, 100);
+  
+  // Preload modal component after table is loaded
+  setTimeout(() => {
+    import("../modals/AddTransactionModal");
+  }, 200);
+};
 
 // Loading component for Suspense
 const LoadingSpinner = () => (
@@ -72,6 +85,11 @@ export default function TransactionsContainer() {
         refetch: fetch
     });
 
+    // PRPL: Preload components after initial render
+    useEffect(() => {
+        preloadComponents();
+    }, []);
+
     const merchantOptions = useMemo(() => {
         const map = new Map<string, string>();
         allTransactions.forEach((txn) => {
@@ -103,6 +121,7 @@ export default function TransactionsContainer() {
 
     return (
         <div>
+            {/* PRPL: Push critical content first */}
             <Suspense fallback={<LoadingSpinner />}>
                 <TransactionsFilter
                     filters={filters}
@@ -117,6 +136,7 @@ export default function TransactionsContainer() {
                 Add Transaction
             </Button>
 
+            {/* PRPL: Render main content */}
             <Suspense fallback={<LoadingSpinner />}>
                 <TransactionsTable
                     data={filteredItems}
@@ -139,6 +159,7 @@ export default function TransactionsContainer() {
                 />
             </Suspense>
 
+            {/* PRPL: Lazy load modal */}
             <Suspense fallback={<LoadingSpinner />}>
                 <AddTransactionModal
                     visible={isModalVisible}
