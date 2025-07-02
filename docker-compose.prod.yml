@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # JSON Server for mock API (Production)
+  json-server:
+    image: node:18-alpine
+    container_name: financial-app-json-server-prod
+    working_dir: /app
+    volumes:
+      - ./db.json:/app/db.json
+      - ./headers.js:/app/headers.js
+    ports:
+      - "4000:4000"
+    command: >
+      sh -c "npm install -g json-server &&
+             json-server --watch db.json --port 4000 ./headers.js"
+    networks:
+      - financial-app-network
+    restart: unless-stopped
+
+  # Next.js Application (Production)
+  financial-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+    container_name: financial-app-prod
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+      - JSON_SERVER_HOST=http://json-server:4000
+    depends_on:
+      - json-server
+    networks:
+      - financial-app-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/transactions/list"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  financial-app-network:
+    driver: bridge 

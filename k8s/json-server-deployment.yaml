@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: json-server-deployment
+  namespace: financial-app
+  labels:
+    app: json-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: json-server
+  template:
+    metadata:
+      labels:
+        app: json-server
+    spec:
+      containers:
+      - name: json-server
+        image: node:18-alpine
+        ports:
+        - containerPort: 4000
+        workingDir: /app
+        command:
+        - sh
+        - -c
+        - |
+          npm install -g json-server
+          json-server --watch db.json --port 4000 ./headers.js
+        volumeMounts:
+        - name: db-data
+          mountPath: /app/db.json
+          subPath: db.json
+        - name: headers-data
+          mountPath: /app/headers.js
+          subPath: headers.js
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /transactions
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /transactions
+            port: 4000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+      volumes:
+      - name: db-data
+        configMap:
+          name: db-config
+      - name: headers-data
+        configMap:
+          name: headers-config 

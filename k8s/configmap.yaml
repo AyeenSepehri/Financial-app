@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: financial-app-config
+  namespace: financial-app
+data:
+  NODE_ENV: "production"
+  NEXT_TELEMETRY_DISABLED: "1"
+  API_BASE_URL: "http://json-server-service:4000"
+  JSON_SERVER_HOST: "http://json-server-service:4000" 
