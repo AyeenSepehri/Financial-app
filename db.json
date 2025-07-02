@@ -1,4 +1,5 @@
-timestamp: values.timestamp.format('YYYY-MM-DDTHH:mm:ss'),
+{
+  "transactions": [
 
 {
       "id": "txn_003",
