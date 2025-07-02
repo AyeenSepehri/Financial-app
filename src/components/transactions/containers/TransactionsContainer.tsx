@@ -12,7 +12,7 @@ import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
 import { Button, Spin } from "antd";
 
 // PRPL Pattern: Lazy load components with preloading
-const TransactionsFilter = lazy(() => import("../TransactionsFilter"));
+const TransactionsFilter = lazy(() => import("../filters/TransactionsFilter"));
 const TransactionsTable = lazy(() => import("../table/TransactionsTable"));
 const AddTransactionModal = lazy(() => import("../modals/AddTransactionModal"));
 

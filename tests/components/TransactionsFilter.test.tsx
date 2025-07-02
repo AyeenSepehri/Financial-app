@@ -1,9 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom'
-import TransactionsFilter from '@/components/transactions/TransactionsFilter'
+import TransactionsFilter from '@/components/transactions/filters/TransactionsFilter'
 
 // Mock child filter components
-jest.mock('@/components/transactions/filters/StatusFilter', () => {
+jest.mock('@/components/transactions/filters/partials/StatusFilter', () => {
     return function MockStatusFilter({ value, onChange }: any) {
         return (
             <div data-testid="status-filter">
@@ -18,7 +18,7 @@ jest.mock('@/components/transactions/filters/StatusFilter', () => {
     }
 })
 
-jest.mock('@/components/transactions/filters/AmountRangeFilter', () => {
+jest.mock('@/components/transactions/filters/partials/AmountRangeFilter', () => {
     return function MockAmountRangeFilter({ value, onChange }: any) {
         return (
             <div data-testid="amount-range-filter">
@@ -41,7 +41,7 @@ jest.mock('@/components/transactions/filters/AmountRangeFilter', () => {
     }
 })
 
-jest.mock('@/components/transactions/filters/DateRangeFilter', () => {
+jest.mock('@/components/transactions/filters/partials/DateRangeFilter', () => {
     return function MockDateRangeFilter({ value, onChange }: any) {
         return (
             <div data-testid="date-range-filter">
@@ -62,7 +62,7 @@ jest.mock('@/components/transactions/filters/DateRangeFilter', () => {
     }
 })
 
-jest.mock('@/components/transactions/filters/MerchantFilter', () => {
+jest.mock('@/components/transactions/filters/partials/MerchantFilter', () => {
     return function MockMerchantFilter({ merchantId, options, onChange }: any) {
         return (
             <div data-testid="merchant-filter">
@@ -79,7 +79,7 @@ jest.mock('@/components/transactions/filters/MerchantFilter', () => {
     }
 })
 
-jest.mock('@/components/transactions/filters/PaymentMethodFilter', () => {
+jest.mock('@/components/transactions/filters/partials/PaymentMethodFilter', () => {
     return function MockPaymentMethodFilter({ value, options, onChange }: any) {
         return (
             <div data-testid="payment-method-filter">

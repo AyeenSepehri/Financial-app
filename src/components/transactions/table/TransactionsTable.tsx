@@ -1,11 +1,11 @@
 'use client';
 
 import { Transaction } from '@/features/transactions/types';
-import Spinner from '@/components/ui/Spinner';
 import TableHeader from './partials/TableHeader';
 import TableRows from './partials/TableRows';
 import TablePagination from './partials/TablePagination';
 import { useTransactionsTable } from '@/components/transactions/table/config/useTransactionsTable';
+import { Spin } from "antd";
 
 
 type Props = {
@@ -39,7 +39,11 @@ export default function TransactionsTable({
     });
 
     if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
-    if (loading) return <Spinner />;
+    if (loading) return (
+        <div className="flex justify-center items-center w-full h-64 bg-white border border-gray-200 rounded-md shadow-sm">
+            <Spin size="large" />
+        </div>
+    );
 
     return (
         <div className="overflow-x-auto rounded-md border border-gray-200 shadow-sm bg-white">

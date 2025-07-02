@@ -4,12 +4,12 @@ import { useState } from "react";
 import { Button } from "antd";
 import { DownOutlined, UpOutlined } from "@ant-design/icons";
 
-import StatusFilter from "./filters/StatusFilter";
-import AmountRangeFilter from "./filters/AmountRangeFilter";
-import DateRangeFilter from "./filters/DateRangeFilter";
-import MerchantFilter from "./filters/MerchantFilter";
-import { TransactionFilterValues } from "./filters/types";
-import PaymentMethodFilter from "@/components/transactions/filters/PaymentMethodFilter";
+import StatusFilter from "./partials/StatusFilter";
+import AmountRangeFilter from "./partials/AmountRangeFilter";
+import DateRangeFilter from "./partials/DateRangeFilter";
+import MerchantFilter from "./partials/MerchantFilter";
+import { TransactionFilterValues } from "./types";
+import PaymentMethodFilter from "@/components/transactions/filters/partials/PaymentMethodFilter";
 
 type Props = {
     filters: TransactionFilterValues;

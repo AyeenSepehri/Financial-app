@@ -104,7 +104,7 @@ jest.mock('@/hooks/reduxHooks/useAppDispatch', () => ({
 }))
 
 // Mock child components
-jest.mock('@/components/transactions/TransactionsFilter', () => {
+jest.mock('@/components/transactions/filters/TransactionsFilter', () => {
     return function MockTransactionsFilter() {
         return <div data-testid="transactions-filter">Filters Component</div>
     }
