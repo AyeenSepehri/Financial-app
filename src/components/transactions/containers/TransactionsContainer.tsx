@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from "react";
+import { useMemo, Suspense, lazy } from "react";
 import {useAppSelector} from "@/hooks/reduxHooks/useAppSelector";
 import { useAppDispatch} from "@/hooks/reduxHooks/useAppDispatch";
 import { useTransactionFilters } from "@/hooks/customHooks/useTransactionFilters";
@@ -9,10 +9,19 @@ import { useSorting } from "@/hooks/customHooks/useSorting";
 import { useTransactionFetcher } from "@/hooks/customHooks/useTransactionFetcher";
 import { useTransactionAdder } from "@/hooks/customHooks/useTransactionAdder";
 import { useAllTransactions } from "@/hooks/queries/useAllTransactions";
-import TransactionsFilter from "../TransactionsFilter";
-import TransactionsTable from "../table/TransactionsTable";
-import AddTransactionModal from "../modals/AddTransactionModal";
-import { Button } from "antd";
+import { Button, Spin } from "antd";
+
+// Lazy load components for PRPL pattern
+const TransactionsFilter = lazy(() => import("../TransactionsFilter"));
+const TransactionsTable = lazy(() => import("../table/TransactionsTable"));
+const AddTransactionModal = lazy(() => import("../modals/AddTransactionModal"));
+
+// Loading component for Suspense
+const LoadingSpinner = () => (
+    <div className="flex justify-center items-center p-8">
+        <Spin size="large" />
+    </div>
+);
 
 export default function TransactionsContainer() {
     const dispatch = useAppDispatch();
@@ -94,43 +103,49 @@ export default function TransactionsContainer() {
 
     return (
         <div>
-            <TransactionsFilter
-                filters={filters}
-                merchantOptions={merchantOptions}
-                paymentMethodOptions={paymentMethodOptions}
-                onChange={setFilters}
-                onApply={applyFilters}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+                <TransactionsFilter
+                    filters={filters}
+                    merchantOptions={merchantOptions}
+                    paymentMethodOptions={paymentMethodOptions}
+                    onChange={setFilters}
+                    onApply={applyFilters}
+                />
+            </Suspense>
 
             <Button type="primary" onClick={() => setIsModalVisible(true)} className="mb-4">
                 Add Transaction
             </Button>
 
-            <TransactionsTable
-                data={filteredItems}
-                loading={loading || allLoading}
-                error={error}
-                pagination={{
-                    current: page,
-                    pageSize,
-                    total: filteredTotal,
-                    onChange: (newPage, newSize) => {
-                        setPage(newPage);
-                        setPageSize(newSize);
-                    },
-                }}
-                onSortChange={(id, order) => {
-                    setSortBy(id);
-                    setSortOrder(order);
-                    setPage(1);
-                }}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+                <TransactionsTable
+                    data={filteredItems}
+                    loading={loading || allLoading}
+                    error={error}
+                    pagination={{
+                        current: page,
+                        pageSize,
+                        total: filteredTotal,
+                        onChange: (newPage, newSize) => {
+                            setPage(newPage);
+                            setPageSize(newSize);
+                        },
+                    }}
+                    onSortChange={(id, order) => {
+                        setSortBy(id);
+                        setSortOrder(order);
+                        setPage(1);
+                    }}
+                />
+            </Suspense>
 
-            <AddTransactionModal
-                visible={isModalVisible}
-                onClose={() => setIsModalVisible(false)}
-                onAdd={handleAddTransaction}
-            />
+            <Suspense fallback={<LoadingSpinner />}>
+                <AddTransactionModal
+                    visible={isModalVisible}
+                    onClose={() => setIsModalVisible(false)}
+                    onAdd={handleAddTransaction}
+                />
+            </Suspense>
         </div>
     );
 }
