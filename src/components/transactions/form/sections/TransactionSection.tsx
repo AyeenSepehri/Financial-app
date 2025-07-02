@@ -50,7 +50,12 @@ export default function TransactionSection() {
                             label="Timestamp"
                             rules={[{ required: true }]}
                         >
-                            <DatePicker showTime style={{ width: "100%" }} />
+                            <DatePicker 
+                                showTime 
+                                style={{ width: "100%" }}
+                                format="YYYY-MM-DD HH:mm:ss"
+                                placeholder="Select date and time"
+                            />
                         </Form.Item>
                     </div>
                 </div>

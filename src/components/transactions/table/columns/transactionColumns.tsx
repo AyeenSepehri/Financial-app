@@ -60,7 +60,6 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
         accessorFn: (row) => row.merchant?.name,
         id: "merchant",
         header: "Merchant",
-        enableSorting: true,
     },
     {
         accessorFn: (row) => row.payment_method?.brand,
@@ -86,7 +85,6 @@ export const transactionColumns: ColumnDef<Transaction>[] = [
             const currency = row.original.fees.currency;
             return `${value} ${currency}`;
         },
-        enableSorting: true,
     },
     {
         accessorFn: (row) => row.metadata.order_id,

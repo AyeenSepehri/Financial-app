@@ -6,12 +6,19 @@ export const useAddTransaction = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (newTxn: Transaction) =>
-            axios
-                .post("/api/transactions/add", newTxn)
-                .then(res => res.data),
-        onSuccess: () => {
+        mutationFn: async (newTxn: Transaction) => {
+            const response = await axios.post("/api/transactions/add", newTxn);
+            console.log("API Response:", response.data);
+            return response.data;
+        },
+        onSuccess: (data) => {
+            console.log("Success callback:", data);
             queryClient.invalidateQueries({ queryKey: ["all-transactions"] });
+            return data;
+        },
+        onError: (error) => {
+            console.error("Add transaction error:", error);
+            throw error;
         },
     });
 };

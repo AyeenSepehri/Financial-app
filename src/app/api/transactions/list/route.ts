@@ -1,6 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Transaction } from "@/features/transactions/types";
 
+// Retry function for better reliability
+async function fetchWithRetry(url: string, options: RequestInit = {}, retries = 3): Promise<Response> {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const response = await fetch(url, options);
+            if (response.ok) {
+                return response;
+            }
+        } catch (error) {
+            console.log(`Attempt ${i + 1} failed, retrying...`);
+            if (i === retries - 1) throw error;
+            await new Promise(resolve => setTimeout(resolve, 1000 * (i + 1))); // Exponential backoff
+        }
+    }
+    throw new Error(`Failed after ${retries} attempts`);
+}
 
 export async function GET(req: NextRequest) {
     try {
@@ -10,7 +26,10 @@ export async function GET(req: NextRequest) {
         const page = parseInt(sp.get("_page") || "1", 10);
         const limit = parseInt(sp.get("_limit") || "10", 10);
 
-        const res = await fetch("http://localhost:4000/transactions");
+        const jsonServerHost = process.env.JSON_SERVER_HOST || "http://localhost:4000";
+        
+        // Use retry logic for better reliability
+        const res = await fetchWithRetry(`${jsonServerHost}/transactions`);
         const transactions = await res.json();
 
         let filtered: Transaction[] = transactions;
@@ -103,6 +122,9 @@ export async function GET(req: NextRequest) {
         });
     } catch (error) {
         console.error("[GET /api/transactions/list]", error);
-        return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+        return NextResponse.json({ 
+            error: "Internal Server Error",
+            message: "Unable to connect to data source. Please try again."
+        }, { status: 500 });
     }
 }

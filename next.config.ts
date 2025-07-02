@@ -1,13 +1,25 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   experimental: {
     optimizePackageImports: ['@ant-design/icons', 'antd']
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production'
   },
+  // Improve initial loading
+  poweredByHeader: false,
+  // Docker file watching
   webpack: (config, { dev, isServer }) => {
+    if (dev) {
+      // Enable polling for Docker environments
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
+    }
+
     if (!dev && !isServer) {
       // Add PWA support in production
       const { GenerateSW } = require('workbox-webpack-plugin');

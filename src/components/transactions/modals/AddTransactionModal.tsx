@@ -22,7 +22,7 @@ export default function AddTransactionModal({ visible, onClose, onAdd }: Props) 
                 amount: values.amount,
                 currency: values.currency,
                 status: values.status,
-                timestamp: values.timestamp,
+                timestamp: values.timestamp.format('YYYY-MM-DDTHH:mm:ss'),
                 description: values.description || "",
 
                 merchant: {

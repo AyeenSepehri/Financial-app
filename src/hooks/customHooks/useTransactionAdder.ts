@@ -23,11 +23,13 @@ export const useTransactionAdder = ({ allTransactions, refetch }: Props) => {
                 onSuccess: () => {
                     setIsModalVisible(false);
                     toast.success("Transaction successfully saved.");
-                    refetch(); // Reload filtered transactions
+                    refetch();
                 },
-                onError: () => {
+                onError: (error) => {
+                    console.log("React Query error:", error);
                     setIsModalVisible(false);
-                    toast.error("Adding transaction encountered an error.");
+                    toast.error("Failed to save transaction. Please try again.");
+                    refetch();
                 },
             }
         );
